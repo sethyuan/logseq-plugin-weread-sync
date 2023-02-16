@@ -1,0 +1,28 @@
+{
+  "name": "logseq-plugin-weread-sync",
+  "version": "0.1.0",
+  "main": "dist/index.html",
+  "logseq": {
+    "id": "logseq-weread-sync",
+    "icon": "./icon.png"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@logseq/libs": "^0.0.14",
+    "logseq-l10n": "^0.2.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-alias": "^3.1.9",
+    "@rollup/plugin-commonjs": "^23.0.2",
+    "@rollup/plugin-html": "^0.2.4",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-replace": "^5.0.0",
+    "@swc/core": "^1.2.187",
+    "rollup": "^2.74.1",
+    "rollup-plugin-swc3": "^0.3.0"
+  }
+}
