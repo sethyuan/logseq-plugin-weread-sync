@@ -1,11 +1,14 @@
 import "@logseq/libs"
-import { setup } from "logseq-l10n"
-import zhCN from "./translations/zh-CN.json"
 
 async function main() {
-  await setup({ builtinTranslations: { "zh-CN": zhCN } })
-
-  // TODO: settings
+  logseq.useSettingsSchema([
+    {
+      key: "notesBlock",
+      type: "string",
+      default: "[[笔记]]",
+      description: "同步时会在该内容块下输出笔记。",
+    },
+  ])
 
   logseq.beforeunload(() => {})
 
@@ -16,6 +19,7 @@ const model = {
   receiveSyncData(data) {
     // TODO
     console.log(data)
+    return true
   },
 }
 

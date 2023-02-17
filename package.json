@@ -11,8 +11,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@logseq/libs": "^0.0.14",
-    "logseq-l10n": "^0.2.0"
+    "@logseq/libs": "^0.0.14"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^3.1.9",
