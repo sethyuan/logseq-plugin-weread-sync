@@ -6,21 +6,33 @@ export async function syncBookmarks(bookmarks) {
 }
 
 async function syncRemoved(bookmarkIds) {
-  for (const id of bookmarkIds) {
-    const res = (
+  for (const bookmarkId of bookmarkIds) {
+    const blockRes = (
       await logseq.DB.datascriptQuery(
-        `[:find (pull ?b [:block/uuid])
+        `[:find (pull ?b [:db/id :block/uuid])
         :in $ ?id
         :where
         [?b :block/properties ?props]
         [(get ?props :划线id) ?v]
         [(= ?v ?id)]]`,
-        `"${id}"`,
+        `"${bookmarkId}"`,
       )
     )[0]
-    if (res == null) continue
-    const block = res[0]
-    await logseq.Editor.upsertBlockProperty(block.uuid, "已被删除", "是")
+    if (blockRes == null) continue
+    const block = blockRes[0]
+    const referencedRes = await logseq.DB.datascriptQuery(
+      `[:find (pull ?b [:db/id])
+      :in $ ?id
+      :where
+      [?t :db/id ?id]
+      [?b :block/refs ?t]]`,
+      block.id,
+    )
+    if (referencedRes?.length > 0) {
+      await logseq.Editor.upsertBlockProperty(block.uuid, "已被删除", "是")
+    } else {
+      await logseq.Editor.removeBlock(block.uuid)
+    }
   }
 }
 
@@ -92,20 +104,17 @@ async function createOrGetChapter(
       (c) =>
         c.bookId === bookmark.bookId && c.chapterUid === bookmark.chapterUid,
     )?.title
+  const content = `${chapterName}\nheading:: true\n章节id:: ${bookmark.chapterUid}`
   const [refBlock, i] = await findChapterRefBlock(notesBlock, bookmarkStart)
   if (refBlock) {
-    const ret = await logseq.Editor.insertBlock(
-      refBlock.uuid,
-      `${chapterName}\n章节id:: ${note.chapterUid}`,
-      { before: true, sibling: true },
-    )
+    const ret = await logseq.Editor.insertBlock(refBlock.uuid, content, {
+      before: true,
+      sibling: true,
+    })
     notesBlock.children.splice(i, 0, ret)
     return ret
   } else {
-    const ret = await logseq.Editor.insertBlock(
-      notesBlock.uuid,
-      `${chapterName}\n章节id:: ${bookmark.chapterUid}`,
-    )
+    const ret = await logseq.Editor.insertBlock(notesBlock.uuid, content)
     notesBlock.children.push(ret)
     return ret
   }
