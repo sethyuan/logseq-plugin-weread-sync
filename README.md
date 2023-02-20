@@ -12,6 +12,8 @@
 - 同步被删除的划线与想法时，已有引用的划线与想法不会被删除，而是会被标记为“已被删除”。
 - 书籍页面正文可编辑，不影响后续数据同步。（请不要变动层级结构）
 
+![sample](https://user-images.githubusercontent.com/3410293/220123566-e1b61281-709b-486f-a562-1005bda90182.png)
+
 ## 安装
 
 你需要安装本插件以及[这里](https://github.com/sethyuan/chrome-weread-sync/releases)配套的 Chrome 插件。你还需要打开 Logseq 的 HTTP APIs Server。
@@ -23,8 +25,8 @@
 ### Chrome 插件安装
 
 1. 下载[最新的 zip 包](https://github.com/sethyuan/chrome-weread-sync/releases)，找个合适的地方解压。
-1. 到 Chrome 中地址栏里打开 `chrome://extensions`，开启开发者模式。
-1. 加载刚刚解压出的文件夹。
+1. 到 Chrome 中地址栏里打开 `chrome://extensions`，开启开发者模式。![image](https://user-images.githubusercontent.com/3410293/220122712-fcbd559a-c9f1-484c-a47b-667525838605.png)
+1. 加载刚刚解压出的文件夹。![image](https://user-images.githubusercontent.com/3410293/220122743-5c575064-ac26-407c-868c-8aef443a9f43.png)
 
 浏览器端插件安装完毕。
 
@@ -41,6 +43,12 @@ Logseq 中开启 `设置 -> 更多功能 -> HTTP APIs Server`。
 1. 来到浏览器端，在插件菜单打开插件的选项页。
 1. 将刚刚做的 API Server 的配置输入进去保存。
 1. 来到 Logseq，打开插件配置，这里你可以做些自定义如觉得有必要的话。
+
+![image](https://user-images.githubusercontent.com/3410293/220122588-eb2b1e36-a501-4464-8826-b90b7caba572.png)
+
+![image](https://user-images.githubusercontent.com/3410293/220123040-76277107-56ae-43a9-a4f8-8c7690b0ea04.png)
+
+![image](https://user-images.githubusercontent.com/3410293/220123158-753a5965-86ce-4807-a34d-46192e2e672c.png)
 
 配置工作完毕。
 
