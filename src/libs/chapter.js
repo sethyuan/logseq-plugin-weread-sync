@@ -1,3 +1,5 @@
+import { parseId } from "./utils"
+
 export async function getNotesBlock(bookId) {
   const res = (
     await logseq.DB.datascriptQuery(

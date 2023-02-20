@@ -27,24 +27,25 @@ export async function syncBooks(books) {
 }
 
 async function syncRemoved(bookIds) {
-  for (const bookId of bookIds) {
-    const res = (
-      await logseq.DB.datascriptQuery(
-        `[:find (pull ?p [:db/id :block/name])
+  await Promise.all(
+    bookIds.map(async (bookId) => {
+      const res = (
+        await logseq.DB.datascriptQuery(
+          `[:find (pull ?p [:db/id :block/name])
         :in $ ?bookId
         :where
         [?p :block/name]
         [?p :block/properties ?props]
         [(get ?props :书籍id) ?v]
         [(= ?v ?bookId)]]`,
-        parseId(bookId),
-      )
-    )[0]
-    if (res == null) continue
-    const page = res[0]
-    const referencedRes = (
-      await logseq.DB.datascriptQuery(
-        `[:find (pull ?b [:db/id]) (pull ?m [*])
+          parseId(bookId),
+        )
+      )[0]
+      if (res == null) return
+      const page = res[0]
+      const referencedRes = (
+        await logseq.DB.datascriptQuery(
+          `[:find (pull ?b [:db/id]) (pull ?m [*])
         :in $ ?id
         :where
         [?book]
@@ -53,34 +54,34 @@ async function syncRemoved(bookIds) {
         [?m :block/pre-block? true]
         [?bb :block/page ?book]
         [?b :block/refs ?bb]]`,
-        page.id,
-      )
-    )[0]
-    if (referencedRes != null) {
-      const metadata = referencedRes[1]
-      if (!metadata.properties.已被删除) {
-        await logseq.Editor.updateBlock(
-          metadata.uuid,
-          `${metadata.content}\n已被删除:: 是`,
+          page.id,
         )
+      )[0]
+      if (referencedRes != null) {
+        const metadata = referencedRes[1]
+        if (!metadata.properties.已被删除) {
+          await logseq.Editor.updateBlock(
+            metadata.uuid,
+            `${metadata.content}\n已被删除:: 是`,
+          )
+        }
+      } else {
+        await logseq.Editor.deletePage(page.name)
       }
-    } else {
-      await logseq.Editor.deletePage(page.name)
-    }
-  }
+    }),
+  )
 }
 
 async function syncUpdated(books) {
-  for (const book of books) {
-    const bookPage = await createOrGetBook(book.bookId, book.title)
-    const bookBlocks = await logseq.Editor.getPageBlocksTree(bookPage.name)
-    await writeMetadata(bookBlocks, book)
-    console.log("done writing metadata")
-    await writeNotesSection(bookBlocks)
-    console.log("done writing notes section")
-    await writeIntro(bookBlocks, book)
-    console.log("done writing intro")
-  }
+  await Promise.all(
+    books.map(async (book) => {
+      const bookPage = await createOrGetBook(book.bookId, book.title)
+      const bookBlocks = await logseq.Editor.getPageBlocksTree(bookPage.name)
+      await writeMetadata(bookBlocks, book)
+      await writeNotesSection(bookBlocks)
+      await writeIntro(bookBlocks, book)
+    }),
+  )
 }
 
 async function createOrGetBook(bookId, title) {
@@ -128,7 +129,7 @@ async function writeMetadata(bookBlocks, book) {
     `来源:: [[微信读书]]`,
     `书籍id:: ${book.bookId}`,
     `版本:: ${book.version}`,
-    ...(book.cover ? [`封面:: ![](${book.cover}){:width 100}`] : []),
+    ...(book.cover ? [`封面:: ![](${book.cover}){:width 80}`] : []),
   ].concat(
     Object.entries(metadataBlock.propertiesTextValues ?? {})
       .filter(([k]) => !METADATA_KEYS.has(k))

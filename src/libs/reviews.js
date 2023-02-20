@@ -1,5 +1,5 @@
 import { createOrGetChapter, findNoteRefBlock, getNotesBlock } from "./chapter"
-import { parseRange, toLSDateFromTS } from "./utils"
+import { parseId, parseRange, toLSDateFromTS } from "./utils"
 
 export async function syncReviews(reviews) {
   await syncRemoved(reviews.removed)
@@ -43,6 +43,7 @@ async function syncUpdated(reviews) {
   let chapterBlock = null
   for (const item of reviews) {
     const review = item.review
+    if (review.chapterUid == null) continue
     if (notesBlock?.bookId !== review.bookId) {
       notesBlock = await getNotesBlock(review.bookId)
       if (notesBlock == null) continue

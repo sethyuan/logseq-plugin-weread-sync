@@ -42,6 +42,8 @@ async function syncUpdated(bookmarks, chapters) {
   let notesBlock = null
   let chapterBlock = null
   for (const bookmark of bookmarks) {
+    // page bookmark is ignored.
+    if (bookmark.type === 0) continue
     if (notesBlock?.bookId !== bookmark.bookId) {
       notesBlock = await getNotesBlock(bookmark.bookId)
       if (notesBlock == null) continue
@@ -66,11 +68,11 @@ async function createOrGetBookmark(chapterBlock, bookmark) {
   }
 
   const [start, end] = parseRange(bookmark.range)
-  const content = `${bookmark.markText}\n划线id:: ${
+  const content = `${bookmark.markText}\n\n划线id:: ${
     bookmark.bookmarkId
   }\n创建日期:: ${toLSDateFromTS(
     bookmark.createTime,
-  )}\n起始:: ${start}\n结束:: ${end}`
+  )}\n起始:: ${start}\n结束:: ${end ?? start}`
 
   const [refBlock, i] = await findNoteRefBlock(chapterBlock, start)
   if (refBlock) {
