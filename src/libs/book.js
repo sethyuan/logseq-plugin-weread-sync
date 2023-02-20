@@ -24,7 +24,7 @@ async function syncRemoved(bookIds) {
   for (const bookId of bookIds) {
     const res = (
       await logseq.DB.datascriptQuery(
-        `[:find (pull ?p [:block/name])
+        `[:find (pull ?p [:db/id :block/name])
         :in $ ?bookId
         :where
         [?p :block/name]
@@ -35,8 +35,32 @@ async function syncRemoved(bookIds) {
       )
     )[0]
     if (res == null) continue
-    const page = res[0].name
-    await logseq.Editor.deletePage(page.name)
+    const page = res[0]
+    const referencedRes = (
+      await logseq.DB.datascriptQuery(
+        `[:find (pull ?b [:db/id]) (pull ?m [*])
+        :in $ ?id
+        :where
+        [?book]
+        [(= ?book ?id)]
+        [?m :block/page ?book]
+        [?m :block/pre-block? true]
+        [?bb :block/page ?book]
+        [?b :block/refs ?bb]]`,
+        page.id,
+      )
+    )[0]
+    if (referencedRes != null) {
+      const metadata = referencedRes[1]
+      if (!metadata.properties.已被删除) {
+        await logseq.Editor.updateBlock(
+          metadata.uuid,
+          `${metadata.content}\n已被删除:: 是`,
+        )
+      }
+    } else {
+      await logseq.Editor.deletePage(page.name)
+    }
   }
 }
 

@@ -24,7 +24,8 @@ async function syncRemoved(bookmarkIds) {
       `[:find (pull ?b [:db/id])
       :in $ ?id
       :where
-      [?t :db/id ?id]
+      [?t]
+      [(= ?t ?id)]
       [?b :block/refs ?t]]`,
       block.id,
     )
@@ -103,7 +104,8 @@ async function createOrGetChapter(
     chapters.find(
       (c) =>
         c.bookId === bookmark.bookId && c.chapterUid === bookmark.chapterUid,
-    )?.title
+    )?.title ??
+    "未知"
   const content = `${chapterName}\nheading:: true\n章节id:: ${bookmark.chapterUid}`
   const [refBlock, i] = await findChapterRefBlock(notesBlock, bookmarkStart)
   if (refBlock) {
