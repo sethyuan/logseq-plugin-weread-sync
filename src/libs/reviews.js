@@ -16,7 +16,7 @@ async function syncRemoved(reviewIds) {
         [?b :block/properties ?props]
         [(get ?props :想法id) ?v]
         [(= ?v ?id)]]`,
-        `"${reviewId}"`,
+        parseId(reviewId),
       )
     )[0]
     if (blockRes == null) continue
@@ -46,21 +46,16 @@ async function syncUpdated(reviews) {
     if (notesBlock?.bookId !== review.bookId) {
       notesBlock = await getNotesBlock(review.bookId)
       if (notesBlock == null) continue
+      chapterBlock = null
     }
-    const [reviewStart, reviewEnd] = parseRange(review.range)
     if (chapterBlock?.properties?.章节id !== review.chapterUid) {
-      chapterBlock = await createOrGetChapter(
-        notesBlock,
-        review,
-        [],
-        reviewStart,
-      )
+      chapterBlock = await createOrGetChapter(notesBlock, review, [])
     }
-    await createOrGetReview(chapterBlock, review, reviewStart, reviewEnd)
+    await createOrGetReview(chapterBlock, review)
   }
 }
 
-async function createOrGetReview(chapterBlock, review, reviewStart, reviewEnd) {
+async function createOrGetReview(chapterBlock, review) {
   if (chapterBlock.children == null) {
     chapterBlock.children = []
   }
@@ -71,13 +66,14 @@ async function createOrGetReview(chapterBlock, review, reviewStart, reviewEnd) {
     }
   }
 
+  const [start, end] = parseRange(review.range)
   const content = `${review.content}\n> ${review.abstract}\n\n想法id:: ${
     review.reviewId
   }\n创建日期:: ${toLSDateFromTS(
     review.createTime,
-  )}\n起始:: ${reviewStart}\n结束:: ${reviewEnd}`
+  )}\n起始:: ${start}\n结束:: ${end}`
 
-  const [refBlock, i] = await findNoteRefBlock(chapterBlock, reviewStart)
+  const [refBlock, i] = await findNoteRefBlock(chapterBlock, start)
   if (refBlock) {
     const ret = await logseq.Editor.insertBlock(refBlock.uuid, content, {
       before: true,

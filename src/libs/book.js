@@ -1,4 +1,10 @@
-import { tagListFromCategories, toLSDate, toTag, toTagList } from "./utils"
+import {
+  parseId,
+  tagListFromCategories,
+  toLSDate,
+  toTag,
+  toTagList,
+} from "./utils"
 
 const METADATA_KEYS = new Set([
   "tags",
@@ -31,7 +37,7 @@ async function syncRemoved(bookIds) {
         [?p :block/properties ?props]
         [(get ?props :书籍id) ?v]
         [(= ?v ?bookId)]]`,
-        `"${bookId}"`,
+        parseId(bookId),
       )
     )[0]
     if (res == null) continue
@@ -87,7 +93,7 @@ async function createOrGetBook(bookId, title) {
       [?p :block/properties ?props]
       [(get ?props :书籍id) ?v]
       [(= ?v ?bookId)]]`,
-      `"${bookId}"`,
+      parseId(bookId),
     )
   )[0]
 

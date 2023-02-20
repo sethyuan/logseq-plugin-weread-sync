@@ -12,7 +12,7 @@ export async function getNotesBlock(bookId) {
       [?b :block/properties ?props]
       [(get ?props :部分) ?v]
       [(= ?v "笔记")]]`,
-      `"${bookId}"`,
+      parseId(bookId),
     )
   )[0]
   if (res == null) return null
@@ -23,12 +23,7 @@ export async function getNotesBlock(bookId) {
   return ret
 }
 
-export async function createOrGetChapter(
-  notesBlock,
-  note,
-  chapters,
-  noteStart,
-) {
+export async function createOrGetChapter(notesBlock, note, chapters) {
   if (notesBlock.children == null) {
     notesBlock.children = []
   }
@@ -47,7 +42,7 @@ export async function createOrGetChapter(
     )?.title ??
     "未知"
   const content = `${chapterName}\nheading:: true\n章节id:: ${note.chapterUid}`
-  const [refBlock, i] = await findChapterRefBlock(notesBlock, noteStart)
+  const [refBlock, i] = await findChapterRefBlock(notesBlock, note.chapterUid)
   if (refBlock) {
     const ret = await logseq.Editor.insertBlock(refBlock.uuid, content, {
       before: true,
@@ -72,11 +67,10 @@ export async function findNoteRefBlock(chapterBlock, noteStart) {
   return []
 }
 
-async function findChapterRefBlock(notesBlocks, noteStart) {
+async function findChapterRefBlock(notesBlocks, chapterUid) {
   for (let i = 0; i < notesBlocks.children.length; i++) {
     const chapterBlock = notesBlocks.children[i]
-    const firstBlock = chapterBlock.children?.[0]
-    if (firstBlock?.properties?.起始 > noteStart) {
+    if (chapterBlock?.properties?.章节id > chapterUid) {
       return [chapterBlock, i]
     }
   }

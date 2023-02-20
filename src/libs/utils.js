@@ -39,3 +39,7 @@ export function toLSDateFromTS(ts) {
 export function parseRange(str) {
   return str.split("-").map((s) => +s)
 }
+
+export function parseId(id) {
+  return Number.isNaN(+id) ? `"${id}"` : id
+}

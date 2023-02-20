@@ -45,31 +45,16 @@ async function syncUpdated(bookmarks, chapters) {
     if (notesBlock?.bookId !== bookmark.bookId) {
       notesBlock = await getNotesBlock(bookmark.bookId)
       if (notesBlock == null) continue
+      chapterBlock = null
     }
-    const [bookmarkStart, bookmarkEnd] = parseRange(bookmark.range)
     if (chapterBlock?.properties?.章节id !== bookmark.chapterUid) {
-      chapterBlock = await createOrGetChapter(
-        notesBlock,
-        bookmark,
-        chapters,
-        bookmarkStart,
-      )
+      chapterBlock = await createOrGetChapter(notesBlock, bookmark, chapters)
     }
-    await createOrGetBookmark(
-      chapterBlock,
-      bookmark,
-      bookmarkStart,
-      bookmarkEnd,
-    )
+    await createOrGetBookmark(chapterBlock, bookmark)
   }
 }
 
-async function createOrGetBookmark(
-  chapterBlock,
-  bookmark,
-  bookmarkStart,
-  bookmarkEnd,
-) {
+async function createOrGetBookmark(chapterBlock, bookmark) {
   if (chapterBlock.children == null) {
     chapterBlock.children = []
   }
@@ -80,13 +65,14 @@ async function createOrGetBookmark(
     }
   }
 
+  const [start, end] = parseRange(bookmark.range)
   const content = `${bookmark.markText}\n划线id:: ${
     bookmark.bookmarkId
   }\n创建日期:: ${toLSDateFromTS(
     bookmark.createTime,
-  )}\n起始:: ${bookmarkStart}\n结束:: ${bookmarkEnd}`
+  )}\n起始:: ${start}\n结束:: ${end}`
 
-  const [refBlock, i] = await findNoteRefBlock(chapterBlock, bookmarkStart)
+  const [refBlock, i] = await findNoteRefBlock(chapterBlock, start)
   if (refBlock) {
     const ret = await logseq.Editor.insertBlock(refBlock.uuid, content, {
       before: true,
