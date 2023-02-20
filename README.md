@@ -74,7 +74,7 @@ Logseq 中开启 `设置 -> 更多功能 -> HTTP APIs Server`。
 
 因为元数据属性太多，可能看起来会比较乱，这个时候可以用下面 Logseq 配置（config.edn）来隐藏不想看到的属性：
 
-```
+```edn
  ;; hide specific properties for blocks
  ;; E.g. :block-hidden-properties #{:created-at :updated-at}
  :block-hidden-properties #{:版本 :书籍id :章节id :划线id :想法id :创建日期 :起始 :结束 :部分}
