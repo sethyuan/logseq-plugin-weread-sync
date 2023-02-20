@@ -1,3 +1,4 @@
+import { createOrGetChapter, findNoteRefBlock, getNotesBlock } from "./chapter"
 import { parseRange, toLSDateFromTS } from "./utils"
 
 export async function syncBookmarks(bookmarks) {
@@ -54,86 +55,16 @@ async function syncUpdated(bookmarks, chapters) {
         bookmarkStart,
       )
     }
-    await createOrGetNote(chapterBlock, bookmark, bookmarkStart, bookmarkEnd)
-  }
-}
-
-async function getNotesBlock(bookId) {
-  const res = (
-    await logseq.DB.datascriptQuery(
-      `[:find (pull ?b [:block/uuid])
-      :in $ ?bookId
-      :where
-      [?p :block/name]
-      [?p :block/properties ?pprops]
-      [(get ?pprops :书籍id) ?pv]
-      [(= ?pv ?bookId)]
-      [?b :block/page ?p]
-      [?b :block/properties ?props]
-      [(get ?props :部分) ?v]
-      [(= ?v "笔记")]]`,
-      `"${bookId}"`,
+    await createOrGetBookmark(
+      chapterBlock,
+      bookmark,
+      bookmarkStart,
+      bookmarkEnd,
     )
-  )[0]
-  if (res == null) return null
-  const ret = await logseq.Editor.getBlock(res[0].uuid, {
-    includeChildren: true,
-  })
-  ret.bookId = bookId
-  return ret
-}
-
-async function createOrGetChapter(
-  notesBlock,
-  bookmark,
-  chapters,
-  bookmarkStart,
-) {
-  if (notesBlock.children == null) {
-    notesBlock.children = []
-  }
-
-  for (const block of notesBlock.children) {
-    if (block.properties?.章节id === bookmark.chapterUid) {
-      return block
-    }
-  }
-
-  const chapterName =
-    bookmark.chapterName ??
-    chapters.find(
-      (c) =>
-        c.bookId === bookmark.bookId && c.chapterUid === bookmark.chapterUid,
-    )?.title ??
-    "未知"
-  const content = `${chapterName}\nheading:: true\n章节id:: ${bookmark.chapterUid}`
-  const [refBlock, i] = await findChapterRefBlock(notesBlock, bookmarkStart)
-  if (refBlock) {
-    const ret = await logseq.Editor.insertBlock(refBlock.uuid, content, {
-      before: true,
-      sibling: true,
-    })
-    notesBlock.children.splice(i, 0, ret)
-    return ret
-  } else {
-    const ret = await logseq.Editor.insertBlock(notesBlock.uuid, content)
-    notesBlock.children.push(ret)
-    return ret
   }
 }
 
-async function findChapterRefBlock(notesBlocks, bookmarkStart) {
-  for (let i = 0; i < notesBlocks.children.length; i++) {
-    const chapterBlock = notesBlocks.children[i]
-    const firstBlock = chapterBlock.children?.[0]
-    if (firstBlock?.properties?.起始 > bookmarkStart) {
-      return [chapterBlock, i]
-    }
-  }
-  return []
-}
-
-async function createOrGetNote(
+async function createOrGetBookmark(
   chapterBlock,
   bookmark,
   bookmarkStart,
@@ -155,7 +86,7 @@ async function createOrGetNote(
     bookmark.createTime,
   )}\n起始:: ${bookmarkStart}\n结束:: ${bookmarkEnd}`
 
-  const [refBlock, i] = await findBookmarkRefBlock(chapterBlock, bookmarkStart)
+  const [refBlock, i] = await findNoteRefBlock(chapterBlock, bookmarkStart)
   if (refBlock) {
     const ret = await logseq.Editor.insertBlock(refBlock.uuid, content, {
       before: true,
@@ -168,14 +99,4 @@ async function createOrGetNote(
     chapterBlock.children.push(ret)
     return ret
   }
-}
-
-async function findBookmarkRefBlock(chapterBlock, bookmarkStart) {
-  for (let i = 0; i < chapterBlock.children.length; i++) {
-    const bookmarkBlock = chapterBlock.children[i]
-    if (bookmarkBlock.properties?.起始 > bookmarkStart) {
-      return [bookmarkBlock, i]
-    }
-  }
-  return []
 }
