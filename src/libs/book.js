@@ -1,9 +1,11 @@
 import {
+  chooseValue,
   parseId,
   tagListFromCategories,
   toLSDate,
   toTag,
   toTagList,
+  trimAuthor,
 } from "./utils"
 
 const METADATA_KEYS = new Set([
@@ -118,13 +120,41 @@ async function createOrGetBook(bookId, title) {
 async function writeMetadata(bookBlocks, book) {
   const metadataBlock = bookBlocks[0]
   const props = [
-    `tags:: ${logseq.settings?.tags ?? "书"}`,
-    `分类:: ${tagListFromCategories(book.categories)}`,
-    `作者:: ${toTagList(book.author)}`,
-    ...(book.translator ? [`译者:: ${toTagList(book.translator)}`] : []),
-    `出版社:: ${toTag(book.publisher)}`,
-    `出版日期:: ${toLSDate(book.publishTime)}`,
-    ...(book.isbn ? [`ISBN:: ${book.isbn}`] : []),
+    `tags:: ${
+      metadataBlock.propertiesTextValues?.tags || logseq.settings?.tags || ""
+    }`,
+    `分类:: ${chooseValue(
+      tagListFromCategories(book.categories),
+      metadataBlock.propertiesTextValues?.分类,
+    )}`,
+    `作者:: ${chooseValue(
+      toTagList(trimAuthor(book.author)),
+      metadataBlock.propertiesTextValues?.作者,
+    )}`,
+    ...(book.translator
+      ? [
+          `译者:: ${chooseValue(
+            toTagList(trimAuthor(book.translator)),
+            metadataBlock.propertiesTextValues?.译者,
+          )}`,
+        ]
+      : []),
+    `出版社:: ${chooseValue(
+      toTag(book.publisher),
+      metadataBlock.propertiesTextValues?.出版社,
+    )}`,
+    `出版日期:: ${chooseValue(
+      toLSDate(book.publishTime),
+      metadataBlock.propertiesTextValues?.出版日期,
+    )}`,
+    ...(book.isbn
+      ? [
+          `ISBN:: ${chooseValue(
+            book.isbn,
+            metadataBlock.propertiesTextValues?.isbn,
+          )}`,
+        ]
+      : []),
     `已读完:: ${book.finishReading ? "是" : "否"}`,
     `来源:: [[微信读书]]`,
     `书籍id:: ${book.bookId}`,

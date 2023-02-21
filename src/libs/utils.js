@@ -43,3 +43,11 @@ export function parseRange(str) {
 export function parseId(id) {
   return Number.isNaN(+id) ? `"${id}"` : id
 }
+
+export function chooseValue(remoteStr, localStr) {
+  return !localStr || localStr === "未知" ? remoteStr : localStr
+}
+
+export function trimAuthor(str) {
+  return str?.endsWith("等") ? str.substring(0, str.length - 1) : str
+}
