@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "main": "dist/index.html",
   "logseq": {
-    "id": "logseq-weread-sync",
+    "id": "_sethyuan-logseq-weread-sync",
     "icon": "./icon.png"
   },
   "scripts": {
