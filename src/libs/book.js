@@ -15,7 +15,7 @@ const METADATA_KEYS = new Set([
   "译者",
   "出版社",
   "出版日期",
-  "ISBN",
+  "isbn",
   "已读完",
   "来源",
   "书籍id",
