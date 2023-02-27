@@ -25,7 +25,7 @@ export async function getNotesBlock(bookId) {
   return ret
 }
 
-export async function createOrGetChapter(notesBlock, note, chapters) {
+export async function createOrGetChapter(notesBlock, note) {
   if (notesBlock.children == null) {
     notesBlock.children = []
   }
@@ -36,13 +36,7 @@ export async function createOrGetChapter(notesBlock, note, chapters) {
     }
   }
 
-  const chapterName =
-    note.chapterName ??
-    note.chapterTitle ??
-    chapters.find(
-      (c) => c.bookId === note.bookId && c.chapterUid === note.chapterUid,
-    )?.title ??
-    "未知"
+  const chapterName = note.chapterName ?? "未知"
   const content = `${chapterName}\nheading:: true\n章节id:: ${note.chapterUid}`
   const [refBlock, i] = await findChapterRefBlock(notesBlock, note.chapterUid)
   if (refBlock) {

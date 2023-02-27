@@ -3,7 +3,7 @@ import { parseRange, toLSDateFromTS } from "./utils"
 
 export async function syncBookmarks(bookmarks) {
   await syncRemoved(bookmarks.removed)
-  await syncUpdated(bookmarks.updated, bookmarks.chapters)
+  await syncUpdated(bookmarks.updated)
 }
 
 async function syncRemoved(bookmarkIds) {
@@ -38,7 +38,7 @@ async function syncRemoved(bookmarkIds) {
   }
 }
 
-async function syncUpdated(bookmarks, chapters) {
+async function syncUpdated(bookmarks) {
   let notesBlock = null
   let chapterBlock = null
   for (const bookmark of bookmarks) {
@@ -50,7 +50,7 @@ async function syncUpdated(bookmarks, chapters) {
       chapterBlock = null
     }
     if (chapterBlock?.properties?.章节id !== bookmark.chapterUid) {
-      chapterBlock = await createOrGetChapter(notesBlock, bookmark, chapters)
+      chapterBlock = await createOrGetChapter(notesBlock, bookmark)
     }
     await createOrGetBookmark(chapterBlock, bookmark)
   }

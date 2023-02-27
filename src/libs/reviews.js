@@ -41,8 +41,7 @@ async function syncRemoved(reviewIds) {
 async function syncUpdated(reviews) {
   let notesBlock = null
   let chapterBlock = null
-  for (const item of reviews) {
-    const review = item.review
+  for (const review of reviews) {
     if (review.chapterUid == null) continue
     if (notesBlock?.bookId !== review.bookId) {
       notesBlock = await getNotesBlock(review.bookId)
@@ -50,7 +49,7 @@ async function syncUpdated(reviews) {
       chapterBlock = null
     }
     if (chapterBlock?.properties?.章节id !== review.chapterUid) {
-      chapterBlock = await createOrGetChapter(notesBlock, review, [])
+      chapterBlock = await createOrGetChapter(notesBlock, review)
     }
     await createOrGetReview(chapterBlock, review)
   }
