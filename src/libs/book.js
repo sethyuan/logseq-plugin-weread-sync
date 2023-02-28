@@ -34,12 +34,12 @@ async function syncRemoved(bookIds) {
       const res = (
         await logseq.DB.datascriptQuery(
           `[:find (pull ?p [:db/id :block/name])
-        :in $ ?bookId
-        :where
-        [?p :block/name]
-        [?p :block/properties ?props]
-        [(get ?props :书籍id) ?v]
-        [(= ?v ?bookId)]]`,
+          :in $ ?bookId
+          :where
+          [?p :block/name]
+          [?p :block/properties ?props]
+          [(get ?props :书籍id) ?v]
+          [(= ?v ?bookId)]]`,
           parseId(bookId),
         )
       )[0]
@@ -48,14 +48,14 @@ async function syncRemoved(bookIds) {
       const referencedRes = (
         await logseq.DB.datascriptQuery(
           `[:find (pull ?b [:db/id]) (pull ?m [*])
-        :in $ ?id
-        :where
-        [?book]
-        [(= ?book ?id)]
-        [?m :block/page ?book]
-        [?m :block/pre-block? true]
-        [?bb :block/page ?book]
-        [?b :block/refs ?bb]]`,
+          :in $ ?id
+          :where
+          [?book]
+          [(= ?book ?id)]
+          [?m :block/page ?book]
+          [?m :block/pre-block? true]
+          [?bb :block/page ?book]
+          [?b :block/refs ?bb]]`,
           page.id,
         )
       )[0]
