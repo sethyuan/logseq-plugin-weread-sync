@@ -43,6 +43,7 @@ async function syncUpdated(reviews) {
   let chapterBlock = null
   for (const review of reviews) {
     if (review.chapterUid == null) continue
+    if (await hasReview(review)) continue
     if (notesBlock?.bookId !== review.bookId) {
       notesBlock = await getNotesBlock(review.bookId)
       if (notesBlock == null) continue
@@ -86,4 +87,23 @@ async function createOrGetReview(chapterBlock, review) {
     chapterBlock.children.push(ret)
     return ret
   }
+}
+
+async function hasReview(review) {
+  const result = (
+    await logseq.DB.datascriptQuery(
+      `[:find (pull ?b [:db/id])
+      :in $ ?bookId ?reviewId
+      :where
+      [?p :block/name]
+      [?p :block/properties ?bookProps]
+      [(get ?bookProps :书籍id) ?bookId]
+      [?b :block/page ?p]
+      [?b :block/properties ?props]
+      [(get ?props :想法id) ?reviewId]]`,
+      review.bookId,
+      `"${review.reviewId}"`,
+    )
+  ).flat()
+  return result.length > 0
 }

@@ -44,6 +44,7 @@ async function syncUpdated(bookmarks) {
   for (const bookmark of bookmarks) {
     // page bookmark is ignored.
     if (bookmark.type === 0) continue
+    if (await hasBookmark(bookmark)) continue
     if (notesBlock?.bookId !== bookmark.bookId) {
       notesBlock = await getNotesBlock(bookmark.bookId)
       if (notesBlock == null) continue
@@ -87,4 +88,23 @@ async function createOrGetBookmark(chapterBlock, bookmark) {
     chapterBlock.children.push(ret)
     return ret
   }
+}
+
+async function hasBookmark(bookmark) {
+  const result = (
+    await logseq.DB.datascriptQuery(
+      `[:find (pull ?b [:db/id])
+      :in $ ?bookId ?bookmarkId
+      :where
+      [?p :block/name]
+      [?p :block/properties ?bookProps]
+      [(get ?bookProps :书籍id) ?bookId]
+      [?b :block/page ?p]
+      [?b :block/properties ?props]
+      [(get ?props :划线id) ?bookmarkId]]`,
+      bookmark.bookId,
+      `"${bookmark.bookmarkId}"`,
+    )
+  ).flat()
+  return result.length > 0
 }
