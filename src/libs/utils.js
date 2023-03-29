@@ -28,6 +28,7 @@ export function toLSDate(str) {
   if (!str) return "未知"
   const refDate = new Date()
   const date = parse(str, "yyyy-MM-dd HH:mm:ss", refDate)
+  if (isNaN(date)) return str
   return `[[${format(date, dateFormat)}]]`
 }
 
