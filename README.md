@@ -77,5 +77,5 @@ Logseq 中开启 `设置 -> 更多功能 -> HTTP APIs Server`。
 ```edn
  ;; hide specific properties for blocks
  ;; E.g. :block-hidden-properties #{:created-at :updated-at}
- :block-hidden-properties #{:版本 :书籍id :章节id :划线id :想法id :创建日期 :起始 :结束 :部分}
+ :block-hidden-properties #{:版本 :书籍id :章节id :划线id :想法id :起始 :结束 :部分}
 ```
