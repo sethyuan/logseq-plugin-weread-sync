@@ -78,7 +78,17 @@ async function syncUpdated(books) {
   await Promise.all(
     books.map(async (book) => {
       const bookPage = await createOrGetBook(book.bookId, book.title)
-      const bookBlocks = await logseq.Editor.getPageBlocksTree(bookPage.name)
+      let bookBlocks = await logseq.Editor.getPageBlocksTree(bookPage.name)
+      if (!bookBlocks[0]) {
+        await logseq.Editor.insertBlock(bookPage.name, "")
+        bookBlocks = await logseq.Editor.getPageBlocksTree(bookPage.name)
+      } else if (!bookBlocks[0]["preBlock?"]) {
+        await logseq.Editor.insertBlock(bookBlocks[0].uuid, "", {
+          sibling: true,
+          before: true,
+        })
+        bookBlocks = await logseq.Editor.getPageBlocksTree(bookPage.name)
+      }
       await writeMetadata(bookBlocks, book)
       await writeNotesSection(bookBlocks)
       await writeIntro(bookBlocks, book)
