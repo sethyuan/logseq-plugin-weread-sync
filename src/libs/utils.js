@@ -33,8 +33,13 @@ export function toLSDate(str) {
 }
 
 export function toLSDateFromTS(ts) {
-  const date = new Date(ts * 1000)
-  return `[[${format(date, dateFormat)}]]`
+  try {
+    const date = new Date(ts * 1000)
+    return `[[${format(date, dateFormat)}]]`
+  } catch (err) {
+    console.error(err, ts)
+    return ts
+  }
 }
 
 export function parseRange(str) {
