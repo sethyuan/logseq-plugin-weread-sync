@@ -27,6 +27,12 @@ async function main() {
       default: "[[笔记]]",
       description: "同步时会在该内容块下输出笔记。",
     },
+    {
+      key: "alternateReviewStyle",
+      type: "boolean",
+      default: false,
+      description: "用户评论在引用中，原文以正文显示。",
+    },
   ])
 
   console.log("#weread-sync loaded")

@@ -67,10 +67,11 @@ async function createOrGetReview(chapterBlock, review) {
     }
   }
 
+  const alternateStyle = logseq.settings?.alternateReviewStyle ?? false
   const [start, end] = parseRange(review.range)
-  const content = `${review.content}\n> ${review.abstract}\n\n想法id:: ${
-    review.reviewId
-  }\n创建日期:: ${toLSDateFromTS(
+  const content = `${alternateStyle ? review.abstract : review.content}\n> ${
+    alternateStyle ? review.content : review.abstract
+  }\n\n想法id:: ${review.reviewId}\n创建日期:: ${toLSDateFromTS(
     review.createTime,
   )}\n起始:: ${start}\n结束:: ${end}`
 

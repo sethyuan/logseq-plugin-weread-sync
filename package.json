@@ -1,6 +1,6 @@
 {
   "name": "logseq-plugin-weread-sync",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "main": "dist/index.html",
   "logseq": {
     "id": "_sethyuan-logseq-weread-sync",
