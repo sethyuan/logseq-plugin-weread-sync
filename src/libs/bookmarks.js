@@ -50,7 +50,10 @@ async function syncUpdated(bookmarks) {
       if (notesBlock == null) continue
       chapterBlock = null
     }
-    if (chapterBlock?.properties?.章节id !== bookmark.chapterUid) {
+    if (
+      bookmark.chapterUid == null ||
+      chapterBlock?.properties?.章节id !== bookmark.chapterUid
+    ) {
       chapterBlock = await createOrGetChapter(notesBlock, bookmark)
     }
     await createOrGetBookmark(chapterBlock, bookmark)
